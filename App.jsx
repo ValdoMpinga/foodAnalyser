@@ -21,11 +21,9 @@ const takePicture = async function (camera) {
   const data = await camera.takePictureAsync(options);
   console.log(data.uri);
 
-  // Convert base64 image to a Blob
   const response = await fetch(data.uri);
   const blob = await response.blob();
 
-  // Create form data
   const formData = new FormData();
   formData.append('image', {
     uri: data.uri,
@@ -34,7 +32,6 @@ const takePicture = async function (camera) {
   });
 
   console.log('sending image');
-  // Send the image to the server
   axios
     .post('http://192.168.1.254:3000/upload', formData, {
       headers: {
