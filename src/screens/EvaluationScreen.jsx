@@ -1,12 +1,12 @@
 import { View, Text } from 'react-native'
 import React from 'react'
 
-const Evaluation = () => {
+const EvaluationScreen = () => {
   return (
     <View>
       <Text>Evaluation</Text>
     </View>
-  )
-}
+  );
+};
 
-export default Evaluation
+export default EvaluationScreen;
