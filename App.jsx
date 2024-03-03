@@ -1,53 +1,56 @@
 import {View, Text, TouchableOpacity, StyleSheet} from 'react-native';
 import React, {useState, useRef} from 'react';
 import {RNCamera} from 'react-native-camera';
-import Evaluation from './src/screens/EvaluationScreen';
+import ImagePicker from 'react-native-image-crop-picker'; 
 import axios from 'axios';
+import EvaluationScreen from './src/screens/EvaluationScreen';
 
-const PendingView = () => (
-  <View
-    style={{
-      flex: 1,
-      backgroundColor: 'lightgreen',
-      justifyContent: 'center',
-      alignItems: 'center',
-    }}>
-    <Text>Waiting</Text>
-  </View>
+const CaptureButton = ({onPress}) => (
+  <TouchableOpacity onPress={onPress} style={styles.captureButton}>
+    <Text style={styles.captureButtonText}>SNAP</Text>
+  </TouchableOpacity>
 );
 
-const takePicture = async function (camera) {
-  const options = {quality: 0.5, base64: true};
-  const data = await camera.takePictureAsync(options);
-  console.log(data.uri);
-
-  const response = await fetch(data.uri);
-  const blob = await response.blob();
-
-  const formData = new FormData();
-  formData.append('image', {
-    uri: data.uri,
-    name: 'image.jpg',
-    type: 'image/jpeg',
-  });
-
-  console.log('sending image');
-  axios
-    .post('http://192.168.1.254:3000/upload', formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
-    })
-    .then(response => {
-      console.log('Image uploaded successfully:', response);
-    })
-    .catch(error => {
-      console.error('Error uploading image:', error);
-    });
-  console.log("here");
-};
-
 const App = () => {
+  const takePicture = async camera => {
+    const options = {quality: 0.5, base64: true};
+    const data = await camera.takePictureAsync(options);
+    console.log(data.uri);
+
+    ImagePicker.openCropper({
+      path: data.uri,
+      width: 300,
+      height: 400,
+      cropping: true,
+      cropperCircleOverlay: false,
+      freeStyleCropEnabled: true,
+    }).then(async croppedImage => {
+      console.log(croppedImage);
+      const croppedImageUri = croppedImage.path;
+
+      const formData = new FormData();
+      formData.append('image', {
+        uri: croppedImageUri,
+        name: 'image.jpg',
+        type: 'image/jpeg',
+      });
+
+      console.log('sending image');
+      axios
+        .post('http://192.168.1.254:3000/upload', formData, {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        })
+        .then(response => {
+          console.log('Cropped image uploaded successfully:', response);
+        })
+        .catch(error => {
+          console.error('Error uploading cropped image:', error);
+        });
+    });
+  };
+
   return (
     <View style={styles.container}>
       <RNCamera
@@ -69,17 +72,8 @@ const App = () => {
         {({camera, status, recordAudioPermissionStatus}) => {
           if (status !== 'READY') return <PendingView />;
           return (
-            <View
-              style={{
-                flex: 0,
-                flexDirection: 'row',
-                justifyContent: 'center',
-              }}>
-              <TouchableOpacity
-                onPress={async () => await takePicture(camera)}
-                style={styles.capture}>
-                <Text style={{fontSize: 14}}> SNAP </Text>
-              </TouchableOpacity>
+            <View style={styles.buttonContainer}>
+              <CaptureButton onPress={async () => await takePicture(camera)} />
             </View>
           );
         }}
@@ -99,14 +93,22 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-end',
     alignItems: 'center',
   },
-  capture: {
+  buttonContainer: {
     flex: 0,
-    backgroundColor: '#fff',
+    flexDirection: 'row',
+    justifyContent: 'center',
+    marginBottom: 20,
+  },
+  captureButton: {
+    backgroundColor: '#007AFF',
     borderRadius: 5,
     padding: 15,
     paddingHorizontal: 20,
-    alignSelf: 'center',
-    margin: 20,
+  },
+  captureButtonText: {
+    fontSize: 16,
+    color: '#FFF',
+    textAlign: 'center',
   },
 });
 

@@ -3,7 +3,9 @@
 <plist version="1.0">
 	<dict>
 		<key>NSCameraUsageDescription</key>
-		<string>Your own description of the purpose</string>
+		<string>For camera use</string>	
+		<key>NSPhotoLibraryUsageDescription</key>
+		<string>For picture manipulation</string>
 		<key>NSMicrophoneUsageDescription</key>
 		<string>We need access to your microphone to record audio.</string>
 		<key>CFBundleDevelopmentRegion</key>
