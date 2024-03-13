@@ -12,7 +12,7 @@ const App = () => {
         <Stack.Screen
           name="Camera"
           component={CameraScreen}
-          options={{title: 'Camera'}}
+          options={{title: 'Camera', headerShown: false}}
         />
         <Stack.Screen
           name="Evaluation"
