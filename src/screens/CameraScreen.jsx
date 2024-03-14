@@ -14,6 +14,17 @@ const CaptureButton = ({onPress}) => (
 const CameraScreen = () => {
   const navigation = useNavigation();
   const [loading, setLoading] = useState(false);
+  const data = {
+    identified_ingredients: ['água', 'farinha de trigo', 'fécula de batata'],
+    health_impact:
+      'The identified ingredients are generally safe for consumption.',
+    pros_and_cons_short_term:
+      'Short-term consumption of these ingredients is unlikely to have negative effects.',
+    pros_and_cons_long_term:
+      'Long-term consumption can contribute to a balanced diet.',
+    recommended_consumption:
+      'Recommended to consume ingredients in moderation as part of a varied diet.',
+  };
 
   const takePicture = async camera => {
     setLoading(true);
@@ -39,7 +50,10 @@ const CameraScreen = () => {
         },
       );
       console.log('Image uploaded successfully:');
+
       console.log(response.data);
+      console.log(response.data);
+      console.log(typeof response.data);
 
       navigation.navigate('Evaluation', {gptEvaluation: response.data});
     } catch (error) {
@@ -73,6 +87,10 @@ const CameraScreen = () => {
                 <TouchableOpacity
                   onPress={() => {
                     console.log('yo');
+                    navigation.navigate('Evaluation', {
+                      gptEvaluation: data,
+                    });
+
                     // Handle info button press
                   }}
                   style={styles.infoButton}>

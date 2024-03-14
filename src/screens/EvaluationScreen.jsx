@@ -4,76 +4,49 @@ import {View, Text, ScrollView, StyleSheet} from 'react-native';
 const EvaluationScreen = ({route}) => {
   const [gptEvaluation, setGptEvaluation] = useState('');
 
-  useEffect(() => {
-    if (route.params && route.params.gptEvaluation) {
-      setGptEvaluation(route.params.gptEvaluation);
-    }
-  }, [route.params]);
+useEffect(() => {
+  if (route.params && route.params.gptEvaluation) {
+    console.log('Received gptEvaluation:', route.params.gptEvaluation);
+    setGptEvaluation(route.params.gptEvaluation);
+  }
+}, [route.params]);
+
+
+const renderKeyValuePairs = () => {
+  if (!gptEvaluation || Object.keys(gptEvaluation).length === 0) {
+    return <Text style={styles.nothingToShow}>Nothing to show</Text>;
+  }
+
+  const keyValuePairs = [];
+
+  for (const [key, value] of Object.entries(gptEvaluation)) {
+    // Create a title string with the key
+    const title = `${key}:`;
+    // Determine if the value is an array or a string
+    const content = Array.isArray(value) ? value.join('\n') : value;
+    // Add the title and content to the array
+    keyValuePairs.push({title, content});
+  }
+
+  return (
+    <>
+      {keyValuePairs.map(({title, content}, index) => (
+        <View key={index} style={styles.section}>
+          <Text style={styles.sectionHeader}>{title}</Text>
+          <Text style={styles.sectionContent}>{content}</Text>
+        </View>
+      ))}
+    </>
+  );
+};
+
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
       {gptEvaluation ? (
         <View style={styles.evaluationContainer}>
           <Text style={styles.header}>Evaluation Results</Text>
-          <View style={styles.section}>
-            <Text style={styles.sectionHeader}>Ingredients identified:</Text>
-            <Text style={styles.sectionContent}>
-              - Sugar, Salt, Artificial flavors, Preservatives
-            </Text>
-          </View>
-          <View style={styles.section}>
-            <Text style={styles.sectionHeader}>Health Effects:</Text>
-            <Text style={styles.sectionContent}>
-              - Sugar: Consuming high amounts of sugar can lead to weight gain,
-              increase the risk of obesity, type 2 diabetes, and heart disease.
-            </Text>
-            <Text style={styles.sectionContent}>
-              - Salt: Excessive salt consumption can contribute to high blood
-              pressure and increase the risk of stroke and heart disease.
-            </Text>
-            <Text style={styles.sectionContent}>
-              - Artificial flavors: Some artificial flavors may contain
-              chemicals that can have negative health effects with long-term
-              consumption.
-            </Text>
-            <Text style={styles.sectionContent}>
-              - Preservatives: Preservatives may have low to moderate negative
-              health effects, from allergies to digestive issues.
-            </Text>
-          </View>
-          <View style={styles.section}>
-            <Text style={styles.sectionHeader}>Pros and Cons:</Text>
-            <Text style={styles.sectionContent}>- Pros:</Text>
-            <Text style={styles.subSectionContent}>
-              - Convenience and longer shelf-life.
-            </Text>
-            <Text style={styles.subSectionContent}>
-              - Enhanced taste and flavor profile.
-            </Text>
-            <Text style={styles.sectionContent}>- Cons:</Text>
-            <Text style={styles.subSectionContent}>
-              - High sugar and salt content can lead to adverse health effects.
-            </Text>
-            <Text style={styles.subSectionContent}>
-              - Artificial flavors may not provide nutritional benefits and can
-              potentially harm health.
-            </Text>
-            <Text style={styles.subSectionContent}>
-              - Long-term consumption of preservatives may have negative health
-              impacts.
-            </Text>
-          </View>
-          <View style={styles.section}>
-            <Text style={styles.sectionHeader}>
-              Recommended Consumption Frequency:
-            </Text>
-            <Text style={styles.sectionContent}>
-              - It is recommended to consume pre-processed foods containing
-              these ingredients occasionally and in moderation to minimize the
-              negative health effects associated with them. Regular consumption
-              should be limited to prevent adverse health outcomes.
-            </Text>
-          </View>
+          {renderKeyValuePairs()}
         </View>
       ) : (
         <Text style={styles.nothingToShow}>Nothing to show</Text>
@@ -85,7 +58,7 @@ const EvaluationScreen = ({route}) => {
 const styles = StyleSheet.create({
   container: {
     flexGrow: 1,
-    backgroundColor: '#ecf0f1', // Changed background color
+    backgroundColor: '#ecf0f1',
     paddingHorizontal: 20,
     paddingVertical: 30,
   },
@@ -107,7 +80,8 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: 'bold',
     marginBottom: 20,
-    color: '#333', // Changed text color
+    color: '#333',
+    textAlign: 'center',
   },
   section: {
     marginBottom: 20,
@@ -116,25 +90,62 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: 'bold',
     marginBottom: 10,
-    color: '#555', // Changed text color
+    color: '#555',
   },
   sectionContent: {
     fontSize: 16,
-    marginLeft: 15,
-    marginBottom: 5,
-    color: '#333', // Changed text color
-  },
-  subSectionContent: {
-    fontSize: 16,
-    marginLeft: 30,
-    marginBottom: 5,
-    color: '#555', // Changed text color
+    color: '#333',
   },
   nothingToShow: {
     fontSize: 18,
     textAlign: 'center',
-    color: '#333', // Changed text color
+    color: '#333',
   },
 });
 
 export default EvaluationScreen;
+
+// const dataTemplate = {
+//   identified_ingredients: [],
+//   health_impact: [],
+//   pros_and_cons: {
+//     short_term: [],
+//     long_term: [],
+//   },
+//   recommended_consumption: '',
+// };
+
+// const dataTemplate = {
+//   identified_ingredients: [
+//     'fécula de pata e',
+//     'maltodextrina',
+//     'fructosa',
+//     'especias en polvo',
+//     'corrector de la acidez (E-262ii)',
+//     'aceite vegetal',
+//     'aroma de humo',
+//     'acidulante (E-330)',
+//     'colorantes (E-160a, E-160d)',
+//     'antioxidante (E-306)',
+//   ],
+//   health_impact:
+//     'The identified ingredients may have short-term and long-term negative health impacts if consumed excessively. Some of the ingredients like fructosa and maltodextrina are sources of added sugars and may contribute to health issues like obesity and diabetes when consumed in large amounts.',
+//   pros_and_cons_short_term:
+//     'Short-term consumption may provide flavor and texture to the food, but it can also lead to a quick spike in blood sugar levels due to ingredients like fructosa.',
+//   pros_and_cons_long_term:
+//     'Long-term consumption of these ingredients, especially in processed foods, may contribute to chronic health conditions like obesity, diabetes, and cardiovascular diseases.',
+//   recommended_consumption:
+//     'It is recommended to consume products containing these ingredients in moderation. It is advisable to limit the intake of processed foods high in added sugars, such as fructosa and maltodextrina, to maintain a balanced and healthy diet.',
+// };
+
+// const data = {
+// identified_ingredients": [
+//     "água",
+//     "farinha de trigo",
+//     "fécula de batata"
+//   ],
+//   "health_impact": "The identified ingredients are generally safe for consumption.",
+//   "pros_and_cons_short_term": "Short-term consumption of these ingredients is unlikely to have negative effects.",
+//   "pros_and_cons_long_term": "Long-term consumption can contribute to a balanced diet.",
+//   "recommended_consumption": "Recommended to consume ingredients in moderation as part of a varied diet."
+// };
