@@ -1,45 +1,53 @@
 import React, {useState, useEffect} from 'react';
-import {View, Text, ScrollView, StyleSheet} from 'react-native';
+import {
+  View,
+  Text,
+  ScrollView,
+  StyleSheet,
+  TouchableOpacity,
+} from 'react-native';
+import {useNavigation} from '@react-navigation/native';
 
 const EvaluationScreen = ({route}) => {
   const [gptEvaluation, setGptEvaluation] = useState('');
+  const navigation = useNavigation();
 
-useEffect(() => {
-  if (route.params && route.params.gptEvaluation) {
-    console.log('Received gptEvaluation:', route.params.gptEvaluation);
-    setGptEvaluation(route.params.gptEvaluation);
-  }
-}, [route.params]);
+  useEffect(() => {
+    if (route.params && route.params.gptEvaluation) {
+      console.log('Received gptEvaluation:', route.params.gptEvaluation);
+      setGptEvaluation(route.params.gptEvaluation);
+    }
+  }, [route.params]);
 
+  const handleEvaluateAgain = () => {
+    navigation.navigate('Camera');
+  };
 
-const renderKeyValuePairs = () => {
-  if (!gptEvaluation || Object.keys(gptEvaluation).length === 0) {
-    return <Text style={styles.nothingToShow}>Nothing to show</Text>;
-  }
+  const renderKeyValuePairs = () => {
+    if (!gptEvaluation || Object.keys(gptEvaluation).length === 0) {
+      return <Text style={styles.nothingToShow}>Nothing to show</Text>;
+    }
 
-  const keyValuePairs = [];
+    const keyValuePairs = [];
 
-  for (const [key, value] of Object.entries(gptEvaluation)) {
-    // Create a title string with the key
-    const title = `${key}:`;
-    // Determine if the value is an array or a string
-    const content = Array.isArray(value) ? value.join('\n') : value;
-    // Add the title and content to the array
-    keyValuePairs.push({title, content});
-  }
+    for (const [key, value] of Object.entries(gptEvaluation)) {
+      const title =
+        key.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase()) + ':';
+      const content = Array.isArray(value) ? value.join('\n') : value;
+      keyValuePairs.push({title, content});
+    }
 
-  return (
-    <>
-      {keyValuePairs.map(({title, content}, index) => (
-        <View key={index} style={styles.section}>
-          <Text style={styles.sectionHeader}>{title}</Text>
-          <Text style={styles.sectionContent}>{content}</Text>
-        </View>
-      ))}
-    </>
-  );
-};
-
+    return (
+      <>
+        {keyValuePairs.map(({title, content}, index) => (
+          <View key={index} style={styles.section}>
+            <Text style={styles.sectionHeader}>{title}</Text>
+            <Text style={styles.sectionContent}>{content}</Text>
+          </View>
+        ))}
+      </>
+    );
+  };
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
@@ -47,6 +55,9 @@ const renderKeyValuePairs = () => {
         <View style={styles.evaluationContainer}>
           <Text style={styles.header}>Evaluation Results</Text>
           {renderKeyValuePairs()}
+          <TouchableOpacity onPress={handleEvaluateAgain} style={styles.button}>
+            <Text style={styles.buttonText}>Evaluate Again</Text>
+          </TouchableOpacity>
         </View>
       ) : (
         <Text style={styles.nothingToShow}>Nothing to show</Text>
@@ -88,6 +99,7 @@ const styles = StyleSheet.create({
   },
   sectionHeader: {
     fontSize: 18,
+    textTransform: 'capitalize',
     fontWeight: 'bold',
     marginBottom: 10,
     color: '#555',
@@ -101,51 +113,18 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     color: '#333',
   },
+  button: {
+    backgroundColor: '#007bff',
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 5,
+    alignSelf: 'center',
+    marginTop: 20,
+  },
+  buttonText: {
+    color: '#fff',
+    fontSize: 16,
+  },
 });
 
 export default EvaluationScreen;
-
-// const dataTemplate = {
-//   identified_ingredients: [],
-//   health_impact: [],
-//   pros_and_cons: {
-//     short_term: [],
-//     long_term: [],
-//   },
-//   recommended_consumption: '',
-// };
-
-// const dataTemplate = {
-//   identified_ingredients: [
-//     'fécula de pata e',
-//     'maltodextrina',
-//     'fructosa',
-//     'especias en polvo',
-//     'corrector de la acidez (E-262ii)',
-//     'aceite vegetal',
-//     'aroma de humo',
-//     'acidulante (E-330)',
-//     'colorantes (E-160a, E-160d)',
-//     'antioxidante (E-306)',
-//   ],
-//   health_impact:
-//     'The identified ingredients may have short-term and long-term negative health impacts if consumed excessively. Some of the ingredients like fructosa and maltodextrina are sources of added sugars and may contribute to health issues like obesity and diabetes when consumed in large amounts.',
-//   pros_and_cons_short_term:
-//     'Short-term consumption may provide flavor and texture to the food, but it can also lead to a quick spike in blood sugar levels due to ingredients like fructosa.',
-//   pros_and_cons_long_term:
-//     'Long-term consumption of these ingredients, especially in processed foods, may contribute to chronic health conditions like obesity, diabetes, and cardiovascular diseases.',
-//   recommended_consumption:
-//     'It is recommended to consume products containing these ingredients in moderation. It is advisable to limit the intake of processed foods high in added sugars, such as fructosa and maltodextrina, to maintain a balanced and healthy diet.',
-// };
-
-// const data = {
-// identified_ingredients": [
-//     "água",
-//     "farinha de trigo",
-//     "fécula de batata"
-//   ],
-//   "health_impact": "The identified ingredients are generally safe for consumption.",
-//   "pros_and_cons_short_term": "Short-term consumption of these ingredients is unlikely to have negative effects.",
-//   "pros_and_cons_long_term": "Long-term consumption can contribute to a balanced diet.",
-//   "recommended_consumption": "Recommended to consume ingredients in moderation as part of a varied diet."
-// };
