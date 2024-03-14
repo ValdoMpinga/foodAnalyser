@@ -14,7 +14,6 @@ const EvaluationScreen = ({route}) => {
 
   useEffect(() => {
     if (route.params && route.params.gptEvaluation) {
-      console.log('Received gptEvaluation:', route.params.gptEvaluation);
       setGptEvaluation(route.params.gptEvaluation);
     }
   }, [route.params]);

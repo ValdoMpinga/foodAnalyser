@@ -1,9 +1,10 @@
-import React, {useState} from 'react';
-import {View, TouchableOpacity, Text, StyleSheet} from 'react-native';
+import React, {useState, useEffect, useRef} from 'react';
+import {View, TouchableOpacity, Text, StyleSheet, Animated} from 'react-native';
 import {RNCamera} from 'react-native-camera';
 import axios from 'axios';
 import {useNavigation} from '@react-navigation/native';
 import {BarIndicator} from 'react-native-indicators';
+import Icon from 'react-native-vector-icons/Ionicons'; 
 
 const CaptureButton = ({onPress}) => (
   <TouchableOpacity onPress={onPress} style={styles.captureButton}>
@@ -11,20 +12,33 @@ const CaptureButton = ({onPress}) => (
   </TouchableOpacity>
 );
 
+const InfoButton = ({onPress}) => (
+  <TouchableOpacity onPress={onPress} style={styles.infoButton}>
+    <Icon name="information-circle-outline" size={24} color="yellow" />
+  </TouchableOpacity>
+);
+
 const CameraScreen = () => {
   const navigation = useNavigation();
   const [loading, setLoading] = useState(false);
-  const data = {
-    identified_ingredients: ['água', 'farinha de trigo', 'fécula de batata'],
-    health_impact:
-      'The identified ingredients are generally safe for consumption.',
-    pros_and_cons_short_term:
-      'Short-term consumption of these ingredients is unlikely to have negative effects.',
-    pros_and_cons_long_term:
-      'Long-term consumption can contribute to a balanced diet.',
-    recommended_consumption:
-      'Recommended to consume ingredients in moderation as part of a varied diet.',
-  };
+  const scaleAnim = useRef(new Animated.Value(1)).current;
+
+  useEffect(() => {
+    Animated.loop(
+      Animated.sequence([
+        Animated.timing(scaleAnim, {
+          toValue: 1.2,
+          duration: 500,
+          useNativeDriver: true,
+        }),
+        Animated.timing(scaleAnim, {
+          toValue: 1,
+          duration: 500,
+          useNativeDriver: true,
+        }),
+      ]),
+    ).start();
+  }, []);
 
   const takePicture = async camera => {
     setLoading(true);
@@ -51,8 +65,6 @@ const CameraScreen = () => {
       );
       console.log('Image uploaded successfully:');
 
-      console.log(response.data);
-      console.log(response.data);
       console.log(typeof response.data);
 
       navigation.navigate('Evaluation', {gptEvaluation: response.data});
@@ -72,7 +84,7 @@ const CameraScreen = () => {
         {({camera, status}) => {
           if (status !== 'READY') return <View />;
           return (
-            <React.Fragment>
+            <>
               <View style={styles.buttonContainer}>
                 <CaptureButton
                   onPress={async () => await takePicture(camera)}
@@ -84,20 +96,17 @@ const CameraScreen = () => {
                 </View>
               )}
               <View style={styles.infoButtonContainer}>
-                <TouchableOpacity
-                  onPress={() => {
-                    console.log('yo');
-                    navigation.navigate('Evaluation', {
-                      gptEvaluation: data,
-                    });
-
-                    // Handle info button press
-                  }}
-                  style={styles.infoButton}>
-                  <Text style={styles.infoButtonText}>Info</Text>
-                </TouchableOpacity>
+                <Animated.View
+                  style={[
+                    styles.infoButton,
+                    {transform: [{scale: scaleAnim}]},
+                  ]}>
+                  <InfoButton
+                    onPress={() => console.log('Info button pressed')}
+                  />
+                </Animated.View>
               </View>
-            </React.Fragment>
+            </>
           );
         }}
       </RNCamera>
@@ -141,10 +150,13 @@ const styles = StyleSheet.create({
   infoButton: {
     backgroundColor: 'transparent',
     padding: 10,
-  },
-  infoButtonText: {
-    color: '#FFF',
-    fontSize: 16,
+    borderRadius: 30,
+    borderWidth: 1,
+    borderColor: '#007AFF',
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: 50,
+    height: 50,
   },
   loadingContainer: {
     position: 'absolute',
@@ -154,7 +166,7 @@ const styles = StyleSheet.create({
     bottom: 0,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 0.5)', // Semi-transparent background
+    backgroundColor: 'rgba(0, 0, 0, 0.8)',
   },
 });
 
