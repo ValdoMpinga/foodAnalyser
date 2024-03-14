@@ -1,10 +1,17 @@
 import React, {useState, useEffect, useRef} from 'react';
-import {View, TouchableOpacity, Text, StyleSheet, Animated} from 'react-native';
+import {
+  View,
+  TouchableOpacity,
+  Text,
+  StyleSheet,
+  Animated,
+  Modal,
+} from 'react-native';
 import {RNCamera} from 'react-native-camera';
 import axios from 'axios';
 import {useNavigation} from '@react-navigation/native';
 import {BarIndicator} from 'react-native-indicators';
-import Icon from 'react-native-vector-icons/Ionicons'; 
+import Icon from 'react-native-vector-icons/Ionicons';
 
 const CaptureButton = ({onPress}) => (
   <TouchableOpacity onPress={onPress} style={styles.captureButton}>
@@ -18,9 +25,39 @@ const InfoButton = ({onPress}) => (
   </TouchableOpacity>
 );
 
+const InfoDialog = ({visible, onClose}) => (
+  <Modal
+    animationType="fade"
+    transparent={true}
+    visible={visible}
+    onRequestClose={onClose}>
+    <View style={styles.infoDialogContainer}>
+      <View style={styles.infoDialog}>
+        <Text style={styles.infoDialogTitle}>Food Quality Evaluation Tool</Text>
+        <Text style={styles.infoDialogText}>
+          Welcome to our Food Quality Evaluation Tool! This application helps
+          you make informed decisions about the nutritional quality and
+          potential health impacts of the foods you consume.
+        </Text>
+        <Text style={styles.infoDialogSteps}>
+          Steps:
+          {'\n'}1. Capture Image{'\n'}2. Text Extraction{'\n'}3. Processing
+          {'\n'}4. Results
+        </Text>
+        <TouchableOpacity onPress={onClose} style={styles.infoDialogButton}>
+          <Text style={styles.infoDialogButtonText}>Got it!</Text>
+        </TouchableOpacity>
+      </View>
+    </View>
+  </Modal>
+);
+
+
+
 const CameraScreen = () => {
   const navigation = useNavigation();
   const [loading, setLoading] = useState(false);
+  const [infoDialogVisible, setInfoDialogVisible] = useState(false);
   const scaleAnim = useRef(new Animated.Value(1)).current;
 
   useEffect(() => {
@@ -101,15 +138,17 @@ const CameraScreen = () => {
                     styles.infoButton,
                     {transform: [{scale: scaleAnim}]},
                   ]}>
-                  <InfoButton
-                    onPress={() => console.log('Info button pressed')}
-                  />
+                  <InfoButton onPress={() => setInfoDialogVisible(true)} />
                 </Animated.View>
               </View>
             </>
           );
         }}
       </RNCamera>
+      <InfoDialog
+        visible={infoDialogVisible}
+        onClose={() => setInfoDialogVisible(false)}
+      />
     </View>
   );
 };
@@ -167,6 +206,70 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: 'rgba(0, 0, 0, 0.8)',
+  },
+  infoDialogContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  },
+  infoDialog: {
+    backgroundColor: 'white',
+    borderRadius: 10,
+    padding: 20,
+    width: '80%',
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
+  },
+
+  infoDialogTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    marginBottom: 10,
+    textAlign: 'center',
+    color: '#333', // Dark text color
+  },
+
+  infoDialogText: {
+    fontSize: 16,
+    marginBottom: 20,
+    textAlign: 'center',
+    lineHeight: 22,
+    color: '#555', // Dark text color
+  },
+
+  infoDialogSteps: {
+    fontSize: 16,
+    marginBottom: 10,
+    textAlign: 'left',
+    color: '#555', // Dark text color
+  },
+
+  infoDialogButtonText: {
+    color: 'white',
+    fontSize: 16,
+    textAlign: 'center',
+  },
+  infoDialogButton: {
+    backgroundColor: '#007AFF',
+    borderRadius: 5,
+    padding: 10,
+    marginTop: 20,
+    width: '50%', // Adjust width if needed
+    alignSelf: 'center', // Center button horizontally
+  },
+
+  infoDialogButtonText: {
+    color: 'white',
+    fontSize: 16,
+    textAlign: 'center',
   },
 });
 
