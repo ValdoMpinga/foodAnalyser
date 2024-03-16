@@ -12,6 +12,7 @@ import axios from 'axios';
 import {useNavigation} from '@react-navigation/native';
 import {BarIndicator} from 'react-native-indicators';
 import Icon from 'react-native-vector-icons/Ionicons';
+import { SERVICE_IP } from '../helpers/constants';
 
 const CaptureButton = ({onPress}) => (
   <TouchableOpacity onPress={onPress} style={styles.captureButton}>
@@ -89,10 +90,11 @@ const CameraScreen = () => {
       type: 'image/jpeg',
     });
 
-    try {
+    try
+    {
       console.log('sending image');
       const response = await axios.post(
-        'http://192.168.1.2:3001/upload',
+        `http://${SERVICE_IP}:3001/upload`,
         formData,
         {
           headers: {
